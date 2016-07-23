@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+then
+  echo "No source image given."
+  exit 1
+fi
+
+if [ $1 = "--help" ]
+then
+  echo "iconify <path/to/image.png> <path/to/destination>"
+  exit 1
+fi
+
+if [ -z "$2" ]
+then
+  echo "No destination folder given."
+  exit 1
+fi
+
+read -p "Generate icon set for $1 in $2? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then exit 1; fi
+
+filename=$(basename "$1")
+name="${filename%.*}"
+directory=$2$name.iconset
+
+mkdir $directory
+sips -z 16 16   $1 --out $directory/icon_16x16.png
+sips -z 32 32   $1 --out $directory/icon_16x16@2x.png
+sips -z 32 32   $1 --out $directory/icon_32x32.png
+sips -z 64 64   $1 --out $directory/icon_32x32@2x.png
+sips -z 128 128 $1 --out $directory/icon_128x128.png
+sips -z 256 256 $1 --out $directory/icon_128x128@2x.png
+sips -z 256 256 $1 --out $directory/icon_256x256.png
+sips -z 512 512 $1 --out $directory/icon_256x256@2x.png
+sips -z 512 512 $1 --out $directory/icon_512x512.png
+cp $1 $directory/icon_512x512@2x.png
+iconutil -c icns $directory
+rm -rf $directory
+open $2
